@@ -1,0 +1,80 @@
+<script>
+  const noSteps = [
+    { text: "Will you really say no to me? 🥺", gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMWx5dGRqenJ0ZWE3bWozcno5eXR4d2d1NDg0dTEybG93cHViZzRkNyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/a9xhxAxaqOfQs/giphy.gif" },
+    { text: "Are you sure...? 😢", gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMWx5dGRqenJ0ZWE3bWozcno5eXR4d2d1NDg0dTEybG93cHViZzRkNyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/M28rUlcjueKUE/giphy.gif" },
+    { text: "Think again... 🤔", gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3JpY3NldTN2ZWNyYzd3NmNpNHhzcnptN285d2h5eWwxZzJjczkxcCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/NpL4D3Oc2bJUMAXF9P/giphy.gif" },
+    { text: "Please don’t break my heart 💔", gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXRzMXg4YTQzYXhnb2tpZXFyYW55Zmp1bnE1czJ0b2xsMHNqOGdkdiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/fSkpUE72ynxPsKVNYW/giphy.gif" },
+    { text: "Last chance! 👀", gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbzFiOThvcGNpcHUzdW53dzhjNmg2NW5oNmFhYmUyOHp3aHJ0eW92biZlcD12MV9naWZzX3NlYXJjaCZjdD1n/I1nwVpCaB4k36/giphy.gif" },
+    { text: "You know you wanna say YES 💕", gif: "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnptZXJoODR0ZTRmMmRzemk1MjVmYzl2NGNyMWlhc28xdHEwZ2MwbiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/PPmHsxVG53YKT9N8C7/giphy.gif" }
+  ];
+
+  const yesGif = "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExaDcxOTJzbWdyMWRhMHJzd3F4YW50YnNud3I5M2V1eDc4cXNncHRubCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PTz5sIQPSOI5l5jiBA/giphy.gif";
+
+  const question = document.getElementById("question");
+  const gif = document.getElementById("gif");
+  const noBtn = document.getElementById("noBtn");
+  const yesBtn = document.getElementById("yesBtn");
+
+  let noClickCount = 0;
+  let avoidMode = false;
+
+  // Load old answers from localStorage or start new
+  let answers = JSON.parse(localStorage.getItem("answers")) || [];
+
+  function saveAnswer(choice) {
+    const timestamp = new Date().toLocaleString();
+    answers.push({ choice, timestamp });
+    localStorage.setItem("answers", JSON.stringify(answers));
+  }
+
+  // NO button logic
+  noBtn.addEventListener("click", () => {
+    if (noClickCount < noSteps.length) {
+      question.textContent = noSteps[noClickCount].text;
+      gif.src = noSteps[noClickCount].gif;
+      if (noClickCount === 4) avoidMode = true;
+      noClickCount++;
+    } else {
+      question.textContent = "Okay fine, but I know you actually mean YES 😘";
+      gif.src = yesGif;
+    }
+    saveAnswer("NO ❌");
+  });
+
+  // YES button logic
+  yesBtn.addEventListener("click", () => {
+    question.textContent = "Yay! You said YES! ❤️🥳✨";
+    gif.src = yesGif;
+    noBtn.style.display = "none";
+    yesBtn.style.display = "none";
+    saveAnswer("YES ✅");
+  });
+
+  // Make No button run away after step 5
+  document.addEventListener("mousemove", (e) => {
+    if (avoidMode) {
+      const rect = noBtn.getBoundingClientRect();
+      const dist = Math.hypot(e.clientX - (rect.left + rect.width / 2),
+                              e.clientY - (rect.top + rect.height / 2));
+      if (dist < 100) {
+        noBtn.style.left = `${Math.random() * (window.innerWidth - rect.width)}px`;
+        noBtn.style.top  = `${Math.random() * (window.innerHeight - rect.height)}px`;
+      }
+    }
+  });
+
+  // Secret shortcut to check ALL answers
+  document.addEventListener("keydown", (e) => {
+    if (e.shiftKey && e.key.toLowerCase() === "a") {
+      if (answers.length > 0) {
+        let log = "Answer history:\n\n";
+        answers.forEach((a, i) => {
+          log += `${i+1}. ${a.choice} at ${a.timestamp}\n`;
+        });
+        alert(log);
+      } else {
+        alert("No answers recorded yet.");
+      }
+    }
+  });
+</script>
